@@ -311,20 +311,6 @@ Dalam alur kerja tim pengembangan *Agile*, koordinasi dan transparansi hasil pen
 
 ### 📅 11.1 Sprint Schedule
 
-<style>
-  td.activity { font-weight: bold; background-color: #f2f2f2; }
-
-  /* Color Classes */
-  .blue-light  { background-color: #e0f2ff; }
-  .blue        { background-color: #a5d8ff; }
-  .green-light { background-color: #d3f9d8; }
-  .green       { background-color: #8ce99a; }
-  .red         { background-color: #ffc9c9; }
-  .yellow      { background-color: #fff3bf; }
-  .yellow-light{ background-color: #fff9db; }
-  .gray        { background-color: #e9ecef; }
-</style>
-
 <table>
   <thead>
     <tr>
