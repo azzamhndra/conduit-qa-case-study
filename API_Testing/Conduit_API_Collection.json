@@ -1,0 +1,872 @@
+{
+  "info": {
+    "_postman_id": "ed115f45-a4fd-4b08-be0a-e4d2e4ba19b3",
+    "name": "Conduit Web App - API Testing",
+    "description": "Koleksi pengujian API fungsional, negatif, otorisasi, dan boundary untuk Conduit RealWorld API (Release 1.0). Write request ke hosted API diblokir kecuali allowHostedWrites diaktifkan secara eksplisit.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "53111465",
+    "_collection_link": "https://go.postman.co/collection/53111465-ed115f45-a4fd-4b08-be0a-e4d2e4ba19b3?source=collection_link"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const baseUrl = pm.environment.get(\"baseUrl\") || \"\";",
+          "const allowHostedWrites = pm.environment.get(\"allowHostedWrites\") === \"true\";",
+          "const isHostedApi = /^https?:\\/\\/conduit-api\\.bondaracademy\\.com(?::\\d+)?(?:\\/|$)/i.test(baseUrl);",
+          "const isWriteRequest = [\"POST\", \"PUT\", \"PATCH\", \"DELETE\"].includes(pm.request.method.toUpperCase());",
+          "if (isHostedApi && isWriteRequest && !allowHostedWrites) {",
+          "    console.error(\"Blocked write request to shared Conduit API. Set allowHostedWrites=true only with authorization.\");",
+          "    pm.execution.skipRequest();",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "API-AUTH-001 - Registrasi Pengguna Baru (Positif)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const uniqueId = Date.now().toString().slice(-6);",
+                  "pm.environment.set(\"user_username\", `qa_api_${uniqueId}`);",
+                  "pm.environment.set(\"user_email\", `qa_api_${uniqueId}@test.com`);"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code adalah 200 atau 201 Created\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});",
+                  "const jsonData = pm.response.json();",
+                  "pm.test(\"Respons memuat objek user dan token JWT\", function () {",
+                  "    pm.expect(jsonData).to.have.property(\"user\");",
+                  "    pm.expect(jsonData.user).to.have.property(\"token\");",
+                  "    pm.expect(jsonData.user.token).to.be.a(\"string\").and.not.be.empty;",
+                  "    pm.environment.set(\"auth_token\", jsonData.user.token);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user\": {\n    \"username\": \"{{user_username}}\",\n    \"email\": \"{{user_email}}\",\n    \"password\": \"{{user_password}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "API-AUTH-002 - Login dengan Kredensial Valid (Positif)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code adalah 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const jsonData = pm.response.json();",
+                  "pm.test(\"Email pada respons sesuai dengan akun yang login\", function () {",
+                  "    pm.expect(jsonData.user.email).to.eql(pm.environment.get(\"user_email\"));",
+                  "    pm.environment.set(\"auth_token\", jsonData.user.token);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user\": {\n    \"email\": \"{{user_email}}\",\n    \"password\": \"{{user_password}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "API-AUTH-101 - Login dengan Password Salah (Negatif)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code adalah 403 Forbidden atau 422 Unprocessable\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([403, 422]);",
+                  "});",
+                  "const jsonData = pm.response.json();",
+                  "pm.test(\"Respons mengembalikan objek errors validasi\", function () {",
+                  "    pm.expect(jsonData).to.have.property(\"errors\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user\": {\n    \"email\": \"{{user_email}}\",\n    \"password\": \"PasswordSalah999!\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "API-AUTH-102 - Registrasi dengan Kolom Wajib Kosong (Negatif)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code adalah 422 Unprocessable Entity\", function () {",
+                  "    pm.response.to.have.status(422);",
+                  "});",
+                  "const jsonData = pm.response.json();",
+                  "pm.test(\"Respons mengembalikan payload errors\", function () {",
+                  "    pm.expect(jsonData).to.have.property(\"errors\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user\": {\n    \"username\": \"\",\n    \"email\": \"\",\n    \"password\": \"\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Profile & Settings",
+      "item": [
+        {
+          "name": "API-PROF-001 - Ambil Data Profil Pengguna Aktif (Positif)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code adalah 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const jsonData = pm.response.json();",
+                  "pm.test(\"Username dan email profil sesuai dengan sesi aktif\", function () {",
+                  "    pm.expect(jsonData.user.username).to.eql(pm.environment.get(\"user_username\"));",
+                  "    pm.expect(jsonData.user.email).to.eql(pm.environment.get(\"user_email\"));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Token {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "API-PROF-002 - Perbarui Bio Pengguna (Positif)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code adalah 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const jsonData = pm.response.json();",
+                  "pm.test(\"Bio pengguna berhasil diperbarui dengan akurat\", function () {",
+                  "    pm.expect(jsonData.user.bio).to.eql(\"QA Engineer melakukan pengujian REST API Conduit\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user\": {\n    \"bio\": \"QA Engineer melakukan pengujian REST API Conduit\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "API-PROF-101 - Ambil Data Profil Tanpa Token Autentikasi (Negatif)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code adalah 401 Unauthorized\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/user",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Article Management",
+      "item": [
+        {
+          "name": "API-ART-001 - Buat Artikel Baru (Positif)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code adalah 200 atau 201 Created\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});",
+                  "const jsonData = pm.response.json();",
+                  "pm.test(\"Slug artikel berhasil dibuat dan disimpan ke environment\", function () {",
+                  "    pm.expect(jsonData).to.have.property(\"article\");",
+                  "    pm.expect(jsonData.article.slug).to.be.a(\"string\").and.not.be.empty;",
+                  "    pm.expect(jsonData.article.tagList).to.include(\"qa-automation\");",
+                  "    pm.environment.set(\"article_slug\", jsonData.article.slug);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"article\": {\n    \"title\": \"Verifikasi Pengujian API {{$timestamp}}\",\n    \"description\": \"Validasi REST API end-to-end untuk aplikasi Conduit\",\n    \"body\": \"# Isi Artikel Uji API\\nMemvalidasi endpoint CRUD dan struktur skema respons.\",\n    \"tagList\": [\n      \"qa-automation\",\n      \"postman\"\n    ]\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/articles",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "articles"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "API-ART-002 - Ambil Detail Artikel Berdasarkan Slug (Positif)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code adalah 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const jsonData = pm.response.json();",
+                  "pm.test(\"Slug yang dikembalikan sesuai dengan article_slug\", function () {",
+                  "    pm.expect(jsonData.article.slug).to.eql(pm.environment.get(\"article_slug\"));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/articles/{{article_slug}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "articles",
+                "{{article_slug}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "API-ART-003 - Perbarui Konten Artikel (Positif)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code adalah 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const jsonData = pm.response.json();",
+                  "pm.test(\"Isi artikel menampilkan konten terbaru\", function () {",
+                  "    pm.expect(jsonData.article.body).to.include(\"Konten diperbarui melalui PUT /api/articles\");",
+                  "    pm.environment.set(\"article_slug\", jsonData.article.slug);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"article\": {\n    \"body\": \"Konten diperbarui melalui PUT /api/articles saat eksekusi pengujian API.\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/articles/{{article_slug}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "articles",
+                "{{article_slug}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "API-ART-101 - Buat Artikel dengan Judul Kosong (Negatif)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code adalah 422 Unprocessable Entity\", function () {",
+                  "    pm.response.to.have.status(422);",
+                  "});",
+                  "const jsonData = pm.response.json();",
+                  "pm.test(\"Respons mengembalikan pesan validasi error untuk title\", function () {",
+                  "    pm.expect(jsonData).to.have.property(\"errors\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"article\": {\n    \"title\": \"\",\n    \"description\": \"Deskripsi artikel valid\",\n    \"body\": \"Isi konten artikel valid\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/articles",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "articles"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "API-ART-201 - Buat Artikel dengan Judul >250 Karakter (Boundary / CON-5)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Backend menolak judul yang melebihi 250 karakter (400/422/500)\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([400, 422, 500]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"article\": {\n    \"title\": \"BatasMaksimalKarakterJudulArtikelMelebihi250Karakter_LoremIpsumDolorSitAmetConsecteturAdipiscingElitSedDoEiusmodTemporIncididuntUtLaboreEtDoloreMagnaAliquaUtEnimAdMinimVeniamQuisNostrudExercitationUllamcoLaborisNisiUtAliquipExEaCommodoConsequatDuisAute12345\",\n    \"description\": \"Pengujian batas karakter (boundary) untuk temuan CON-5\",\n    \"body\": \"Memverifikasi penolakan backend saat panjang judul melebihi batas maksimal.\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/articles",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "articles"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Social Interaction",
+      "item": [
+        {
+          "name": "API-SOC-001 - Tambahkan Favorite pada Artikel (Positif)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code adalah 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const jsonData = pm.response.json();",
+                  "pm.test(\"Status favorited bernilai true dan jumlah favorite >= 1\", function () {",
+                  "    pm.expect(jsonData.article.favorited).to.be.true;",
+                  "    pm.expect(jsonData.article.favoritesCount).to.be.at.least(1);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Token {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/articles/{{article_slug}}/favorite",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "articles",
+                "{{article_slug}}",
+                "favorite"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "API-SOC-002 - Batalkan Favorite pada Artikel (Positif)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code adalah 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const jsonData = pm.response.json();",
+                  "pm.test(\"Status favorited kembali bernilai false\", function () {",
+                  "    pm.expect(jsonData.article.favorited).to.be.false;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Token {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/articles/{{article_slug}}/favorite",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "articles",
+                "{{article_slug}}",
+                "favorite"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "API-SOC-003 - Tambahkan Komentar pada Artikel (Positif)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code adalah 200 atau 201 Created\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});",
+                  "const jsonData = pm.response.json();",
+                  "pm.test(\"Komentar berhasil dibuat dengan ID dan isi yang valid\", function () {",
+                  "    pm.expect(jsonData).to.have.property(\"comment\");",
+                  "    pm.expect(jsonData.comment.id).to.be.a(\"number\");",
+                  "    pm.environment.set(\"comment_id\", jsonData.comment.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"comment\": {\n    \"body\": \"Verifikasi penambahan komentar melalui pengujian API.\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/articles/{{article_slug}}/comments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "articles",
+                "{{article_slug}}",
+                "comments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "API-SOC-004 - Hapus Komentar Milik Sendiri (Positif)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code adalah 200 OK atau 204 No Content\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 204]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Token {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/articles/{{article_slug}}/comments/{{comment_id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "articles",
+                "{{article_slug}}",
+                "comments",
+                "{{comment_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Feed & Cleanup",
+      "item": [
+        {
+          "name": "API-FEED-001 - Ambil Global Feed dengan Pagination (Positif)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code adalah 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const jsonData = pm.response.json();",
+                  "pm.test(\"Respons memuat array articles dan total articlesCount\", function () {",
+                  "    pm.expect(jsonData.articles).to.be.an(\"array\");",
+                  "    pm.expect(jsonData.articlesCount).to.be.a(\"number\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/articles?limit=10&offset=0",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "articles"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "API-FEED-002 - Ambil Daftar Popular Tags (Positif)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code adalah 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const jsonData = pm.response.json();",
+                  "pm.test(\"Respons mengembalikan array tags\", function () {",
+                  "    pm.expect(jsonData.tags).to.be.an(\"array\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tags",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tags"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "API-ART-004 - Hapus Artikel Uji / Cleanup (Positif)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code adalah 200 OK atau 204 No Content\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 204]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Token {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/articles/{{article_slug}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "articles",
+                "{{article_slug}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

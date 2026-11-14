@@ -1,0 +1,55 @@
+{
+  "id": "b8f4e2a1-9c3d-4e5f-8a1b-2c3d4e5f6a7b",
+  "name": "Conduit API Environment",
+  "values": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "allowHostedWrites",
+      "value": "false",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "auth_token",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "user_username",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "user_email",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "user_password",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "article_slug",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "comment_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment"
+}

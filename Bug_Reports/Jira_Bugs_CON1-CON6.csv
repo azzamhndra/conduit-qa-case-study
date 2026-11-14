@@ -1,0 +1,149 @@
+Summary,Issue key,Issue id,Issue Type,Status,Project key,Project name,Project type,Project lead,Project lead id,Project description,Priority,Resolution,Assignee,Assignee Id,Reporter,Reporter Id,Creator,Creator Id,Created,Updated,Last Viewed,Resolved,Due date,Votes,Labels,Labels,Labels,Labels,Description,Environment,Watchers,Watchers Id,Original estimate,Remaining Estimate,Time Spent,Work Ratio,Σ Original Estimate,Σ Remaining Estimate,Σ Time Spent,Security Level,Attachment,Attachment,Custom field (Development),Custom field (Issue color),Custom field (Rank),Custom field (Start date),Custom field (Story point estimate),Custom field (Team),Custom field (Vulnerability),Status category,Status category changed
+[SOC] Komentar yang hanya berisi karakter spasi (whitespace) lolos validasi dan terposting sebagai card kosong,CON-6,10062,Bug,To Do,CON,Conduit Web App,software,Azza Azra Mahendra,712020:f3093f4f-483b-4fdb-80b9-f446892553a5,,Low,,,,Azza Azra Mahendra,712020:f3093f4f-483b-4fdb-80b9-f446892553a5,Azza Azra Mahendra,712020:f3093f4f-483b-4fdb-80b9-f446892553a5,14/Nov/26 9:46 AM,14/Nov/26 9:46 AM,,,,0,comment,release-1.0,social,validation,"*Environment:* Chrome Desktop | URL: [https://conduit.bondaracademy.com/article/[slug]|https://conduit.bondaracademy.com/article/%5Bslug%5D] | Build: Release 1.0
+*Severity:* Minor | *Related Test Case:* TC-SOC-101
+
+*Preconditions:*
+Pengguna sudah login dan membuka halaman detail suatu artikel.
+
+*Steps to Reproduce:*
+
+# Gulir ke bagian kolom komentar di bawah artikel.
+# Masukkan beberapa karakter spasi saja ({{""     ""}}) pada kotak ""Write a comment..."".
+# Klik tombol ""Post Comment"".
+
+*Actual Result:*
+Komentar yang hanya berisi spasi lolos validasi dan berhasil diposting ke daftar komentar, sehingga tampil sebagai card 
+
+!TC-SOC-101_Whitespace_Comment_Accepted.png|width=727,alt=""TC-SOC-101_Whitespace_Comment_Accepted.png""!
+
+komentar kosong tanpa isi teks.
+
+*Expected Result:*
+Sistem melakukan sanitasi {{trim()}} pada input sebelum validasi dan menolak komentar yang hanya berisi spasi dengan menampilkan pesan error validasi (contoh: _""body can't be blank""_).
+
+*Root Cause Note:*
+Validasi panjang string pada frontend dan backend ({{POST /api/articles/:slug/comments}}) hanya mengecek string kosong mutlak ({{""""}}) tanpa menghapus leading/trailing whitespace terlebih dahulu.
+
+*Screenshot / Evidence:*
+
+!TC-SOC-101_Whitespace_Comment_Accepted.png|width=727,alt=""TC-SOC-101_Whitespace_Comment_Accepted.png""!",,Azza Azra Mahendra,712020:f3093f4f-483b-4fdb-80b9-f446892553a5,,,,,,,,,14/Nov/26 9:46 AM;c2b400ba-08b9-44d3-ba7a-c98fc316390f;TC-SOC-101_Whitespace_Comment_Accepted (66a134a8-1b38-4835-affb-58710c999d64).png;https://azzamhndra.atlassian.net/rest/api/3/attachment/content/10006,14/Nov/26 9:46 AM;c2b400ba-08b9-44d3-ba7a-c98fc316390f;TC-SOC-101_Whitespace_Comment_Accepted.png;https://azzamhndra.atlassian.net/rest/api/3/attachment/content/10005,{},,0|i0006q:,,,,,To Do,14/Nov/26 9:46 AM
+[ART] Publikasi artikel dengan judul >250 karakter gagal tanpa pesan validasi error (silent failure),CON-5,10061,Bug,To Do,CON,Conduit Web App,software,Azza Azra Mahendra,712020:f3093f4f-483b-4fdb-80b9-f446892553a5,,Medium,,,,Azza Azra Mahendra,712020:f3093f4f-483b-4fdb-80b9-f446892553a5,Azza Azra Mahendra,712020:f3093f4f-483b-4fdb-80b9-f446892553a5,14/Nov/26 9:44 AM,14/Nov/26 9:44 AM,,,,0,article,release-1.0,ui-feedback,validation,"*Environment:* Chrome Desktop | URL: [https://conduit.bondaracademy.com/editor|https://conduit.bondaracademy.com/editor] | Build: Release 1.0
+*Severity:* Minor | *Related Test Case:* TC-ART-201
+
+*Preconditions:*
+Pengguna sudah login dan berada pada halaman New Article ({{/editor}}).
+
+*Steps to Reproduce:*
+
+# Buka halaman New Article ({{<https://conduit.bondaracademy.com/editor}}).>
+# Isi kolom ""Article Title"" dengan teks sepanjang lebih dari 250 karakter (contoh: 276 karakter).
+# Isi kolom ""What's this article about?"" dan ""Write your article"" dengan teks valid.
+# Klik tombol ""Publish Article"".
+
+*Actual Result:*
+Sistem menolak penyimpanan artikel (request {{POST /api/articles}} gagal di DevTools), tetapi antarmuka tidak menampilkan pesan error validasi apa pun maupun pembatasan {{maxlength}} pada input. Pengguna tidak mengetahui penyebab artikel gagal diterbitkan.
+
+*Expected Result:*
+Sistem membatasi panjang maksimal karakter pada kolom judul ({{maxlength}}) atau menampilkan pesan error validasi yang jelas pada UI ketika panjang judul melebihi batas yang diizinkan server.
+
+*Root Cause Note:*
+Frontend tidak menerapkan pembatasan panjang karakter pada input judul dan gagal merender pesan error respons dari API ke komponen tampilan form.
+
+*Screenshot / Evidence:*
+
+!TC-ART-201_Silent_Failure_Long_Title.png|width=727,alt=""TC-ART-201_Silent_Failure_Long_Title.png""!",,Azza Azra Mahendra,712020:f3093f4f-483b-4fdb-80b9-f446892553a5,,,,,,,,,14/Nov/26 9:44 AM;c2b400ba-08b9-44d3-ba7a-c98fc316390f;TC-ART-201_Silent_Failure_Long_Title.png;https://azzamhndra.atlassian.net/rest/api/3/attachment/content/10004,,{},,0|i0006g:,,,,,To Do,14/Nov/26 9:44 AM
+[AUTH/ROUTING] Redirect akses langsung ke /settings atau /editor tanpa login menghasilkan blank white screen di Home,CON-4,10060,Bug,To Do,CON,Conduit Web App,software,Azza Azra Mahendra,712020:f3093f4f-483b-4fdb-80b9-f446892553a5,,High,,,,Azza Azra Mahendra,712020:f3093f4f-483b-4fdb-80b9-f446892553a5,Azza Azra Mahendra,712020:f3093f4f-483b-4fdb-80b9-f446892553a5,14/Nov/26 8:36 AM,14/Nov/26 8:36 AM,,,,0,release-1.0,routing,security,,"*Environment:* Chrome Desktop | URL: [https://conduit.bondaracademy.com|https://conduit.bondaracademy.com] | Build: Release 1.0
+*Severity:* Major | *Related Test Case:* TC-PROF-201
+
+*Preconditions:*
+Pengguna dalam keadaan tidak login (logged out).
+
+*Steps to Reproduce:*
+
+# Pastikan sesi pengguna sudah logout (menu atas menampilkan ""Sign in"" dan ""Sign up"").
+# Ketik URL terproteksi secara langsung pada address bar browser: {{<https://conduit.bondaracademy.com/settings}}> atau {{<https://conduit.bondaracademy.com/editor}},> lalu tekan Enter.
+# Amati halaman tujuan setelah proses redirect selesai.
+
+*Actual Result:*
+Sistem berhasil memblokir akses ke halaman terproteksi dan mengarahkan URL kembali ke root ({{<https://conduit.bondaracademy.com}}),> tetapi area utama di antara header dan footer gagal dirender sehingga menampilkan layar putih kosong (blank white screen).
+
+*Expected Result:*
+Pengguna diarahkan ke halaman Sign in ({{/login}}) atau halaman Home ({{/}}) dengan seluruh komponen utama (banner, Global Feed, dan Popular Tags) terender secara utuh tanpa perlu refresh manual.
+
+*Root Cause Note:*
+Kegagalan siklus hidup Angular Router Guard saat melakukan navigasi redirect dari rute terproteksi menuju komponen root
+
+!TC-PROF-201_Blank_Home_After_Redirect.png|width=727,alt=""TC-PROF-201_Blank_Home_After_Redirect.png""!
+
+.",,Azza Azra Mahendra,712020:f3093f4f-483b-4fdb-80b9-f446892553a5,,,,,,,,,14/Nov/26 8:36 AM;c2b400ba-08b9-44d3-ba7a-c98fc316390f;TC-PROF-201_Blank_Home_After_Redirect.png;https://azzamhndra.atlassian.net/rest/api/3/attachment/content/10003,,{},,0|i0006d:,,,,,To Do,14/Nov/26 8:36 AM
+[PROF] URL foto profil tidak valid tetap tersimpan dan merender ikon broken image tanpa fallback,CON-3,10059,Bug,To Do,CON,Conduit Web App,software,Azza Azra Mahendra,712020:f3093f4f-483b-4fdb-80b9-f446892553a5,,Low,,,,Azza Azra Mahendra,712020:f3093f4f-483b-4fdb-80b9-f446892553a5,Azza Azra Mahendra,712020:f3093f4f-483b-4fdb-80b9-f446892553a5,14/Nov/26 8:35 AM,14/Nov/26 8:35 AM,,,,0,profile,release-1.0,ui-validation,,"*Environment:* Chrome Desktop | URL: [https://conduit.bondaracademy.com/settings|https://conduit.bondaracademy.com/settings] | Build: Release 1.0
+*Severity:* Minor | *Related Test Case:* TC-PROF-101
+
+*Preconditions:*
+Pengguna sudah login dan berada pada halaman Settings ({{/settings}}).
+
+*Steps to Reproduce:*
+
+# Masukkan URL yang rusak atau bukan file gambar pada kolom ""URL of profile picture"" (contoh: {{<https://example.com/gambar-rusak}}).>
+# Pastikan kolom Username dan Email terisi sesuai akun aktif.
+# Klik tombol ""Update Settings"".
+# Periksa tampilan avatar pada bilah navigasi kanan atas dan halaman profil pengguna.
+
+*Actual Result:*
+Sistem menerima dan menyimpan URL yang tidak valid tanpa menampilkan pesan error validasi. Ikon broken image muncul pada bilah navigasi atas maupun banner halaman profil.
+
+*Expected Result:*
+Sistem memvalidasi format URL gambar sebelum menyimpan perubahan atau menyediakan gambar avatar default (fallback) apabila tautan gambar gagal dimuat
+
+!TC-PROF-101_Broken_Profile_Image.png|width=727,alt=""TC-PROF-101_Broken_Profile_Image.png""!
+
+.",,Azza Azra Mahendra,712020:f3093f4f-483b-4fdb-80b9-f446892553a5,,,,,,,,,14/Nov/26 8:35 AM;c2b400ba-08b9-44d3-ba7a-c98fc316390f;TC-PROF-101_Broken_Profile_Image.png;https://azzamhndra.atlassian.net/rest/api/3/attachment/content/10002,,{},,0|i00062:,,,,,To Do,14/Nov/26 8:35 AM
+[PROF] Halaman /settings menampilkan stale username sesi sebelumnya dan kolom email kosong,CON-2,10058,Bug,To Do,CON,Conduit Web App,software,Azza Azra Mahendra,712020:f3093f4f-483b-4fdb-80b9-f446892553a5,,High,,,,Azza Azra Mahendra,712020:f3093f4f-483b-4fdb-80b9-f446892553a5,Azza Azra Mahendra,712020:f3093f4f-483b-4fdb-80b9-f446892553a5,14/Nov/26 8:34 AM,14/Nov/26 8:34 AM,,,,0,profile,release-1.0,state-management,,"*Environment:* Chrome Desktop | URL: [https://conduit.bondaracademy.com/settings|https://conduit.bondaracademy.com/settings] | Build: Release 1.0
+*Severity:* Major | *Related Test Case:* TC-PROF-001
+
+*Preconditions:*
+Pengguna telah login menggunakan Akun A, melakukan logout, lalu login kembali menggunakan Akun B dalam sesi browser yang sama.
+
+*Steps to Reproduce:*
+
+# Login menggunakan Akun A ({{qa_test_andi}}), lalu klik Settings -> Or click here to logout.
+# Login menggunakan Akun B ({{qa_test01}}).
+# Klik menu ""Settings"" pada bilah navigasi atas untuk membuka {{/settings}}.
+# Periksa isi kolom Username dan Email pada form, lalu bandingkan dengan respons API {{GET /api/user}} di Chrome DevTools.
+
+*Actual Result:*
+Form pada halaman {{/settings}} masih menampilkan username sisa dari sesi sebelumnya ({{qa_test_andi}}) dan membiarkan kolom Email dalam keadaan kosong, padahal payload JSON dari endpoint {{GET /api/user}} sudah mengirimkan data akun aktif ({{qa_test01}}) beserta alamat emailnya.
+
+*Expected Result:*
+Form halaman {{/settings}} harus otomatis memuat dan menampilkan username serta email milik akun yang sedang aktif login saat ini.
+
+*Root Cause Note:*
+Frontend (Angular SPA) gagal membersihkan state sesi pengguna sebelumnya saat logout dan gagal melakukan re-binding data terbaru dari {{GET /api/user}} ke dalam input form sebelum halaman di-refresh manual.
+
+!BUG-PROF-001_Stale_User_State_In_Settings.png|width=727,alt=""BUG-PROF-001_Stale_User_State_In_Settings.png""!",,Azza Azra Mahendra,712020:f3093f4f-483b-4fdb-80b9-f446892553a5,,,,,,,,,14/Nov/26 8:34 AM;c2b400ba-08b9-44d3-ba7a-c98fc316390f;BUG-PROF-001_Stale_User_State_In_Settings.png;https://azzamhndra.atlassian.net/rest/api/3/attachment/content/10001,,{},,0|i0005y:,,,,,To Do,14/Nov/26 8:34 AM
+[AUTH] Validasi form registrasi meloloskan format email tanpa domain (contoh: qatest@),CON-1,10057,Bug,To Do,CON,Conduit Web App,software,Azza Azra Mahendra,712020:f3093f4f-483b-4fdb-80b9-f446892553a5,,Medium,,,,Azza Azra Mahendra,712020:f3093f4f-483b-4fdb-80b9-f446892553a5,Azza Azra Mahendra,712020:f3093f4f-483b-4fdb-80b9-f446892553a5,14/Nov/26 8:31 AM,14/Nov/26 8:31 AM,14/Nov/26 8:31 AM,,,0,auth,release-1.0,validation,,"*Environment:* Chrome Desktop | URL: [https://conduit.bondaracademy.com/register|https://conduit.bondaracademy.com/register] | Build: Release 1.0
+*Severity:* Minor | *Related Test Case:* TC-AUTH-103
+
+*Preconditions:*
+Pengguna berada pada halaman registrasi (/register) dalam kondisi belum login.
+
+*Steps to Reproduce:*
+
+# Buka halaman Sign up ([https://conduit.bondaracademy.com/register).|https://conduit.bondaracademy.com/register).]
+# Isi kolom Username dengan nama unik yang valid (contoh: qatest_user).
+# Isi kolom Email dengan format tidak lengkap tanpa nama domain: {{qatest@}}
+# Isi kolom Password dengan password valid (contoh: Test12345!).
+# Klik tombol ""Sign up"".
+
+*Actual Result:*
+Validasi form menolak email tanpa simbol {{@}} (seperti {{qatest.com}}), tetapi meloloskan input {{qatest@}} (tanpa domain dan TLD) hingga request {{POST /api/users}} berhasil membuat akun baru.
+
+*Expected Result:*
+Sistem menolak registrasi dengan format email tidak lengkap ({{qatest@}}) dan menampilkan pesan error validasi format email yang sesuai standar (contoh: {{user@domain.com}}).
+
+*Root Cause Note:*
+Pengecekan format email pada sisi frontend dan backend hanya memvalidasi keberadaan karakter {{@}} tanpa memeriksa struktur domain yang valid
+
+!TC-AUTH-103_Invalid_Email_Accepted.png|width=727,alt=""TC-AUTH-103_Invalid_Email_Accepted.png""!
+
+.",,Azza Azra Mahendra,712020:f3093f4f-483b-4fdb-80b9-f446892553a5,,,,,,,,,14/Nov/26 8:31 AM;c2b400ba-08b9-44d3-ba7a-c98fc316390f;TC-AUTH-103_Invalid_Email_Accepted.png;https://azzamhndra.atlassian.net/rest/api/3/attachment/content/10000,,{},,0|i0005m:,,,,,To Do,14/Nov/26 8:31 AM
