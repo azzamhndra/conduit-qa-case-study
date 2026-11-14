@@ -391,17 +391,6 @@ Dalam alur kerja tim pengembangan *Agile*, koordinasi dan transparansi hasil pen
 
 ### 📅 11.2 Phase Schedule
 
-<style>
-  td.activity { font-weight: bold; background-color: #f2f2f2; }
-  .c1 { background-color: #fefddbff; }
-  .c2 { background-color: #dbeafe; }
-  .c3 { background-color: #e0ffd4ff; }
-  .c4 { background-color: #60a5fa; }
-  .c5 { background-color: #cdf8f8ff; }
-  .c6 { background-color: #6c29d8ff; color: white; }
-  .c7 { background-color: #1d4ed8; color: white; }
-</style>
-
 <table>
   <thead>
     <tr>
