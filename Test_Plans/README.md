@@ -90,7 +90,7 @@ Dokumen ini menetapkan strategi, ruang lingkup, jadwal, metrik, dan kriteria kua
 ### 6.2 Test Schedule
 | Phase | Activity | Output / Deliverable |
 | :--- | :--- | :--- |
-| **Phase 1** | Test Planning | Dokumen `Test_Plan/README.md` dan pemetaan RTM |
+| **Phase 1** | Test Planning | Dokumen `Test_Plans/README.md` dan pemetaan RTM |
 | **Phase 2** | Test Case Design | 35 skenario pengujian terstruktur di TestRail |
 | **Phase 3** | Smoke Testing | Verifikasi awal alur kritis (akses, registrasi, login) |
 | **Phase 4** | Functional & Exploratory Testing | Eksekusi 35 *test case* UI dan pencatatan *bug* di Jira |
@@ -194,7 +194,7 @@ Selama proses pengujian berlangsung, metrik berikut dipantau dan dicatat untuk m
 ## 11. Artefak Serah Terima & Struktur Repositori
 
 ### 11.1 QA Deliverables
-1. **Master Test Plan (`Test_Plan/README.md`):** Dokumen perencanaan, asumsi, RTM, metrik, dan manajemen risiko.
+1. **Master Test Plan (`Test_Plans/README.md`):** Dokumen perencanaan, asumsi, RTM, metrik, dan manajemen risiko.
 2. **Test Case Repository (`Test_Cases/README.md` dan berkas per modul):** 35 skenario pengujian terstruktur.
 3. **Test Execution Reports (`Test_Reports/TestRun1_*.pdf` dan `Test_Reports/TestRun2_*.pdf`):** Ekspor hasil eksekusi dari TestRail.
 4. **Defect Reports (`Bug_Reports/Jira_Bugs_CON1-CON6.csv`):** Ekspor tiket Jira dengan bukti visual pada `Bug_Reports/evidence/`.
@@ -211,7 +211,7 @@ Selama proses pengujian berlangsung, metrik berikut dipantau dan dicatat untuk m
 ├── Screenshots/
 ├── SQL_Queries/
 ├── Test_Cases/
-├── Test_Plan/
+├── Test_Plans/
 ├── Test_Reports/
 └── README.md
 ```

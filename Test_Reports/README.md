@@ -67,7 +67,7 @@ Seluruh skenario yang gagal telah dilaporkan ke **Jira Cloud** (`CON-1` hingga `
 
 ## 4. Evaluasi Exit Criteria & Keputusan Release Readiness
 
-Evaluasi kelayakan rilis mengacu langsung pada *Quality & Acceptance Criteria* yang telah ditetapkan di dalam [Master Test Plan](../Test_Plan/README.md):
+Evaluasi kelayakan rilis mengacu langsung pada *Quality & Acceptance Criteria* yang telah ditetapkan di dalam [Master Test Plan](../Test_Plans/README.md):
 
 | Kriteria Kelulusan (Exit Criteria) | Target Baseline | Hasil Aktual | Status |
 | :--- | :---: | :---: | :---: |
@@ -99,7 +99,7 @@ Aplikasi **belum direkomendasikan untuk naik ke tahap produksi** hingga dua temu
 
 ## 6. Artefak Terkait
 
-- **Dokumen Perencanaan:** [Master Test Plan](../Test_Plan/README.md)
+- **Dokumen Perencanaan:** [Master Test Plan](../Test_Plans/README.md)
 - **Repositori Skenario Pengujian:** [`Test_Cases/README.md`](../Test_Cases/README.md)
 - **Laporan Eksekusi TestRail:** [`TestRun1_Batch1_AUTH_PROF.pdf`](./TestRun1_Batch1_AUTH_PROF.pdf) | [`TestRun2_Batch2_ART_SOC_FEED.pdf`](./TestRun2_Batch2_ART_SOC_FEED.pdf)
 - **Data Ekspor Bug Jira:** [`Jira_Bugs_CON1-CON6.csv`](../Bug_Reports/Jira_Bugs_CON1-CON6.csv)

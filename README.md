@@ -1,7 +1,7 @@
 # Conduit QA Portfolio – Project Overview
 
 > ⚠️ **Catatan Referensi & Cakupan Portofolio**
-> Dokumen ini merangkum proyek dan strategi pengujian *end-to-end* untuk **Release 1.0** pada **Conduit Web Application** (`https://conduit.bondaracademy.com`). Dokumen Master Test Plan tersedia di [`Test_Plan/README.md`](./Test_Plan/README.md).
+> Dokumen ini merangkum proyek dan strategi pengujian *end-to-end* untuk **Release 1.0** pada **Conduit Web Application** (`https://conduit.bondaracademy.com`). Dokumen Master Test Plan tersedia di [`Test_Plans/README.md`](./Test_Plans/README.md).
 > Tautan berikut mengarah ke artefak yang tersedia di repositori ini:
 > - Skenario Pengujian: [`Test_Cases/README.md`](./Test_Cases/README.md)
 > - Ekspor Defect & Bukti Reproduksi: [`Jira_Bugs_CON1-CON6.csv`](./Bug_Reports/Jira_Bugs_CON1-CON6.csv)
@@ -449,7 +449,7 @@ Dalam alur kerja tim pengembangan *Agile*, koordinasi dan transparansi hasil pen
 
 | # | Artefak yang Diserahkan | Target Audiens | PIC / Penulis | Waktu Penyerahan | Media Penyimpanan |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| 1 | **Master Test Plan (`Test_Plan/README.md`)** | Stakeholders, Tim Pengembang, Recruiter | `@Azza` | Sebelum eksekusi dimulai; diperbarui jika ada perubahan *scope* | Repositori GitHub (`Test_Plan/`) |
+| 1 | **Master Test Plan (`Test_Plans/README.md`)** | Stakeholders, Tim Pengembang, Recruiter | `@Azza` | Sebelum eksekusi dimulai; diperbarui jika ada perubahan *scope* | Repositori GitHub (`Test_Plans/`) |
 | 2 | **Test Cases Repository (`Test_Cases/README.md` & berkas per modul)** | Tim Pengembang, QA Reviewer | `@Azza` | Sebelum eksekusi dimulai; diperbarui dengan status hasil akhir | Repositori GitHub (`Test_Cases/`) & TestRail |
 | 3 | **Test Execution Reports (`TestRun1` & `TestRun2` PDF)** | QA Reviewer, Engineering Lead | `@Azza` | Segera setelah masing-masing *batch* eksekusi selesai | Repositori GitHub (`Test_Reports/`) |
 | 4 | **Defect Reports & Evidence (`Jira_Bugs_CON1-CON6.csv` & `.png`)** | Tim Pengembang, Product Owner | `@Azza` | Langsung saat setiap *defect* ditemukan | Jira Cloud & GitHub (`Bug_Reports/`) |

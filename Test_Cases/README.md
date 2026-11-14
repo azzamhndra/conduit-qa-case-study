@@ -105,7 +105,7 @@ TC-FEED-001
 
 ## Related Documents
 
-- [Master Test Plan](../Test_Plan/README.md)
+- [Master Test Plan](../Test_Plans/README.md)
 - [Test Summary Report (TSR)](../Test_Reports/README.md)
 - [TestRail Execution Report — Batch 1 (`AUTH` & `PROF`)](../Test_Reports/TestRun1_Batch1_AUTH_PROF.pdf)
 - [TestRail Execution Report — Batch 2 (`ART`, `SOC` & `FEED`)](../Test_Reports/TestRun2_Batch2_ART_SOC_FEED.pdf)
